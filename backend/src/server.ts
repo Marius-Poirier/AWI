@@ -6,9 +6,12 @@ import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 
 import publicRouter from './routes/public.ts'
+import { ensureAdmin } from '../db/initAdmin.ts'
 
 // Création de l’application Express
 const app = express()
+// Ajout de l'utilisateur admin
+await ensureAdmin()
 // Ajout manuel des principaux en-têtes HTTP de sécurité
 app.use((req, res, next) => {
     // Empêche le navigateur d’interpréter un fichier d’un autre type MIME -> attaque : XSS via upload malveillant
