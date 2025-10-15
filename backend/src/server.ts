@@ -37,7 +37,7 @@ app.use((req, res, next) => {
 app.use(morgan('dev')) // Log des requêtes : Visualiser le flux de requêtes entre Angular et Express
 app.use(express.json())
 app.use(cookieParser())
-app.use('/api/users', usersRouter)
+app.use('/api/users', verifyToken, usersRouter)
 
 app.use('/api/auth', authRouter);
 app.use('/api/users', verifyToken, usersRouter); // protégé

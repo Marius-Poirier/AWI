@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import pool from '../../db/database.ts'
 import { verifyToken, createAccessToken, createRefreshToken } from '../middleware/token-management.ts';
+import type { TokenPayload } from '../types/token-payload.ts';
 
 const router = Router()
 router.post('/login', async (req, res) => { // --- LOGIN ---
@@ -29,8 +30,45 @@ router.post('/logout', (_req, res) => { // --- LOGOUT ---
     res.clearCookie('refresh_token')
     res.json({ message: 'Déconnexion réussie' })
 })
+router.post('/register', async (req, res) => {
+    const { login, password } = req.body
+    if (!login || !password)
+        return res.status(400).json({ error: 'Champs manquants' })
+    const hashed = await bcrypt.hash(password, 10)
+    try {
+        const { rows } = await pool.query(
+            `INSERT INTO users (login, password_hash, role)
+            VALUES ($1, $2, 'user')
+            RETURNING id, login, role`,
+            [login, hashed]
+        )
+        res.status(201).json({ message: 'Utilisateur créé', user: rows[0] })
+    } catch (err: any) {
+        if (err.code === '23505') // doublon PostgreSQL
+            return res.status(409).json({ error: 'Login déjà utilisé' })
+            console.error(err)
+            res.status(500).json({ error: 'Erreur serveur' })
+    }
+})
+router.post('/refresh', (req, res) => {
+    const refresh = req.cookies?.refresh_token
+    if (!refresh) return res.status(401).json({ error: 'Refresh token manquant' })
+    try {
+        const decoded = jwt.verify(refresh, process.env.JWT_SECRET) as TokenPayload
+        const newAccess = createAccessToken({ id: decoded.id, role: decoded.role })
+        res.cookie('access_token', newAccess, {
+            httpOnly: true, secure: true, sameSite: 'strict', maxAge: 15 * 60 * 1000,
+        })
+        res.json({ message: 'Token renouvelé' })
+    } catch {
+        res.status(403).json({ error: 'Refresh token invalide ou expiré' })
+    }
+})
 // ------ Exemple de route accessible uniquement avec un JWT valide ------
 router.get('/me', verifyToken, (req: Express.Request, res) => {
     res.json({ message: 'Utilisateur authentifié', user: req.user, }) // req typée automatiquement => pas d'erreur dans VSCode
+})
+router.get('/whoami', verifyToken, (req, res) => {
+    res.json({ user: req.user })
 })
 export default router
