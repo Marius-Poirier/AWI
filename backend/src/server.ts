@@ -8,6 +8,11 @@ import cookieParser from 'cookie-parser'
 import publicRouter from './routes/public.ts'
 import { ensureAdmin } from '../db/initAdmin.ts'
 import usersRouter from './routes/users.js'
+import 'dotenv/config'
+
+import authRouter from './routes/auth.ts'
+import { verifyToken } from './middleware/token-management.ts'
+import { requireAdmin } from './middleware/auth-admin.ts'
 
 // Création de l’application Express
 const app = express()
@@ -33,6 +38,12 @@ app.use(morgan('dev')) // Log des requêtes : Visualiser le flux de requêtes en
 app.use(express.json())
 app.use(cookieParser())
 app.use('/api/users', usersRouter)
+
+app.use('/api/auth', authRouter);
+app.use('/api/users', verifyToken, usersRouter); // protégé
+app.use('/api/admin', verifyToken, requireAdmin, (req, res) => {
+    res.json({ message: 'Bienvenue admin' });
+})
 
 // Configuration CORS : autoriser le front Angular en HTTPS local
 app.use(cors({
