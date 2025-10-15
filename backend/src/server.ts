@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser'
 
 import publicRouter from './routes/public.ts'
 import { ensureAdmin } from '../db/initAdmin.ts'
+import usersRouter from './routes/users.js'
 
 // Création de l’application Express
 const app = express()
@@ -31,6 +32,7 @@ app.use((req, res, next) => {
 app.use(morgan('dev')) // Log des requêtes : Visualiser le flux de requêtes entre Angular et Express
 app.use(express.json())
 app.use(cookieParser())
+app.use('/api/users', usersRouter)
 
 // Configuration CORS : autoriser le front Angular en HTTPS local
 app.use(cors({
@@ -44,8 +46,8 @@ app.use(cors({
 app.use('/api/public', publicRouter)
 
 // Chargement du certificat et clé générés par mkcert (étape 0)
-const key = fs.readFileSync('../certs/localhost-key.pem')
-const cert = fs.readFileSync('../certs/localhost.pem')
+const key = fs.readFileSync('./certs/localhost-key.pem')
+const cert = fs.readFileSync('./certs/localhost.pem')
 
 // Lancement du serveur HTTPS
 https.createServer({ key, cert }, app).listen(4000, () => {
