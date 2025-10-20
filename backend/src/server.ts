@@ -5,14 +5,14 @@ import cors from 'cors'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 
-import publicRouter from './routes/public.ts'
-import { ensureAdmin } from '../db/initAdmin.ts'
+import publicRouter from './routes/public.js'
+import { ensureAdmin } from '../db/initAdmin.js'
 import usersRouter from './routes/users.js'
 import 'dotenv/config'
 
-import authRouter from './routes/auth.ts'
-import { verifyToken } from './middleware/token-management.ts'
-import { requireAdmin } from './middleware/auth-admin.ts'
+import authRouter from './routes/auth.js'
+import { verifyToken } from './middleware/token-management.js'
+import { requireAdmin } from './middleware/auth-admin.js'
 
 // Création de l’application Express
 const app = express()
