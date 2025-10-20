@@ -16,7 +16,8 @@
     "module": "preserve",
     "baseUrl": "./",
     "paths": {
-      "@env/*": ["src/environments/*"]
+      "@env/*": ["src/environments/*"],
+      "@auth/*": ["src/app/shared/auth/*"]
     }
   },
   "angularCompilerOptions": {
