@@ -32,14 +32,14 @@ export class AuthService {
             tap(res => {
             if (res?.user) {
                     this._currentUser.set(res.user)
-                    console.log(`👍 Utilisateur connecté : ${JSON.stringify(res.user)}`) // DEBUG
+                    console.log(`Utilisateur connecté : ${JSON.stringify(res.user)}`) // DEBUG
                 } else {
                     this._error.set('Identifiants invalides')
                     this._currentUser.set(null)
                 }
             }),
             catchError((err) => {
-                console.error('👎 Erreur HTTP', err)
+                console.error('Erreur HTTP', err)
                 if (err.status === 401) { this._error.set('Identifiants invalides')}
                 else if (err.status === 0) {
                     this._error.set('Serveur injoignable (vérifiez HTTPS ou CORS)')
@@ -48,7 +48,7 @@ export class AuthService {
                 return of(null)
             }),
             finalize(() => this._isLoading.set(false))
-        ).subscribe()
+        ).subscribe() //on utilise ça pour "lancer" la pipeline sinno rien ne se passe    
     }
     // --- Déconnexion ---
     logout() {
