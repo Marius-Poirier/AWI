@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '@auth/auth-services';
@@ -37,25 +37,26 @@ export class Login {
 
     this.authService.login(login, password);
 
-    // Subscribe to auth state changes to detect success/error
-    const authStateEffect = effect(() => {
-        if (!this.authService.isLoading()) {
-          this.isSubmitting.set(false);
+    // Poll auth state changes to detect success/error
+    const checkAuthState = setInterval(() => {
+      if (!this.authService.isLoading()) {
+        clearInterval(checkAuthState);
+        this.isSubmitting.set(false);
 
-          if (this.authService.isLoggedIn()) {
-            this.router.navigate(['/home']);
-            authStateEffect.destroy(); // Clean up
-          } else if (this.authService.error()) {
-            this.errorMessage.set(this.authService.error());
-            authStateEffect.destroy(); // Clean up
-          }
+        if (this.authService.isLoggedIn()) {
+          // Success: navigate to home
+          this.router.navigate(['/home']);
+        } else if (this.authService.error()) {
+          // Error: display message from service
+          this.errorMessage.set(this.authService.error());
         }
-      });
+      }
+    }, 100);
 
     // Timeout after 10 seconds
     setTimeout(() => {
       if (this.isSubmitting()) {
-        authStateEffect.destroy();
+        clearInterval(checkAuthState);
         this.isSubmitting.set(false);
         this.errorMessage.set('Le serveur met trop de temps à répondre');
       }

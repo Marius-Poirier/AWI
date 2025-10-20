@@ -1,18 +1,20 @@
-import { Component, effect, inject } from '@angular/core'
+import { Component, inject } from '@angular/core'
+import { CommonModule } from '@angular/common'
 import { UserService } from '@users/user'
+import { AuthService } from '@auth/auth-services'
 
 @Component({
-selector: 'app-admin',
-imports: [],
-templateUrl: './admin.component.html',
-styleUrl: './admin.component.scss'
+  selector: 'app-admin',
+  imports: [CommonModule],
+  templateUrl: './admin.html',
+  styleUrl: './admin.css'
 })
-
 export class AdminComponent {
-  private readonly userService = inject(UserService);
-  readonly users = this.userService.users;
-  // Charge la liste à l’arrivée sur la page
+  protected readonly userService = inject(UserService);
+  protected readonly authService = inject(AuthService);
+  
   constructor() {
-  effect(() => this.userService.getAllUsers())
+    // Load users when component initializes
+    this.userService.getAllUsers();
   }
 }

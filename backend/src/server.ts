@@ -34,27 +34,25 @@ app.use((req, res, next) => {
     res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp')
     next();
 })
-app.use(morgan('dev')) // Log des requêtes : Visualiser le flux de requêtes entre Angular et Express
-app.use(express.json())
-app.use(cookieParser())
-app.use('/api/users', verifyToken, usersRouter)
-
-app.use('/api/auth', authRouter);
-app.use('/api/users', verifyToken, usersRouter); // protégé
-app.use('/api/admin', verifyToken, requireAdmin, (req, res) => {
-    res.json({ message: 'Bienvenue admin' });
-})
-
-// Configuration CORS : autoriser le front Angular en HTTPS local
+// Configuration CORS : autoriser le front Angular en HTTPS local (MUST be before routes!)
 app.use(cors({
     origin: 'https://localhost:4200',
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
-// Routes publiques
+app.use(morgan('dev')) // Log des requêtes : Visualiser le flux de requêtes entre Angular et Express
+app.use(express.json())
+app.use(cookieParser())
+
+// Routes
 app.use('/api/public', publicRouter)
+app.use('/api/auth', authRouter)
+app.use('/api/users', verifyToken, usersRouter) // protégé
+app.use('/api/admin', verifyToken, requireAdmin, (req, res) => {
+    res.json({ message: 'Bienvenue admin' });
+})
 
 // Chargement du certificat et clé générés par mkcert (étape 0)
 const key = fs.readFileSync('./certs/localhost-key.pem')
