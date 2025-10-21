@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import pool from '../../db/database.ts'
+import pool from '../db/database.js'
 import bcrypt from 'bcryptjs'
 
 import { requireAdmin } from '../middleware/auth-admin.ts'
