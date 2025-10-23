@@ -36,7 +36,9 @@ app.use((req, res, next) => {
 })
 // Configuration CORS : autoriser le front Angular en HTTPS local (MUST be before routes!)
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'https://localhost:4200'
+  'https://localhost:4200', // Dev mode
+  'http://localhost:4200',  // Dev mode (fallback)
+  process.env.FRONTEND_URL || 'https://localhost:8080' // Production mode
 ];
 
 app.use(cors({
@@ -49,7 +51,7 @@ app.use(cors({
       }
    },
    credentials: true,
-   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
    allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
