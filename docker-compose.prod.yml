@@ -69,6 +69,7 @@ services:
       - "8081:8080" # http://localhost:8081
     environment:
       - ADMINER_DEFAULT_SERVER=db
+      - FRONTEND_URL=http://localhost:8080
     networks:
       - secure_net
 
